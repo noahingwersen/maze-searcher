@@ -39,17 +39,18 @@ class Game:
         self._display()
 
     def _initialize(self):
-        self.window = pygame.display.set_mode((600, 600))
+        maze_width = self.maze.width * 20
+        maze_height = self.maze.height * 20
+        width = maze_width + 100 if maze_width > 500 else 600
+        height = maze_height + 180 if maze_height > 420 else 600
+
+        self.window = pygame.display.set_mode((width, height))
         pygame.display.set_caption('Maze')
         self.clock = pygame.time.Clock()
 
         self.buttons = [
-            Button(self.window, (200, 60), (70, 30), 'SOLVE'),
-            Button(self.window, (300, 60), (70, 30), 'RESET', pygame.Color(235, 64, 52), WHITE)
-        ]
-
-        self.maze_border = [
-           # pygame.Rect()
+            Button(self.window, (int(width/3), 50), (70, 30), 'SOLVE'),
+            Button(self.window, (int(width/3) + 100, 50), (70, 30), 'RESET', pygame.Color(235, 64, 52), WHITE)
         ]
     
     def _display(self):
@@ -62,12 +63,23 @@ class Game:
                     return True
             
             self._draw_buttons()
+            self._draw_maze()
 
             pygame.display.update()
     
     def _draw_maze(self):
-        pass
-    
+        y = 130
+
+        for line in self.maze.grid:
+            x = 50
+            for tile in line:
+                if tile == '#':
+                    rect = pygame.Rect(x, y, 20, 20)
+                    pygame.draw.rect(self.window, WHITE, rect)
+                
+                x += 20
+            y += 20
+
     def _draw_buttons(self):
         for button in self.buttons:
             button.draw()

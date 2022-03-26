@@ -19,4 +19,4 @@ class Maze:
             raise SystemExit
     
 if __name__ == '__main__':
-    m = Maze('src/mazes/simple.txt')
+    m = Maze('src/mazes/pacman.txt')
