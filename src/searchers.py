@@ -3,16 +3,23 @@ from typing import Tuple
 from helpers import Stack, Queue, PriorityQueue
 
 class Offset:
+    '''
+    Used to provide directions in terms of rows and columns with the top left being (0, 0)
+    '''
     UP = (-1, 0)
     DOWN = (1, 0)
     LEFT = (0, -1)
     RIGHT = (0, 1)
 
 class Searcher:
-    def solve(self, maze, start, goal):
-        pass
+    '''
+    Abstract class for searchers
+    '''
 
     def _is_valid(self, maze, position) -> bool:
+        '''
+        Returns True if position is inside maze bounds and not a wall
+        '''
         x, y = position
         if x < 0 or x > len(maze) - 1:
             return False
@@ -25,6 +32,9 @@ class Searcher:
         return True
 
     def _get_path(self, end) -> list[tuple]:
+        '''
+        Returns the path to a given end state by backtracing the predecessors
+        '''
         path = []
         position = end
         while position is not None:
@@ -36,18 +46,24 @@ class Searcher:
         return path
 
 class DepthFirstSearcher(Searcher):
+    '''
+    Searching algorithm that implements a Stack (LIFO)
+    '''
     def __init__(self):
         self.stack = Stack()
         self.predecessors = {}
     
-    def solve(self, maze: list[list[str]], start: Tuple[int, int], goal: Tuple[int, int],
-            progress_queue: queue.Queue = None, path_queue: queue.Queue = None):
-        
+    def solve(self, maze, start, goal, progress_queue = None, path_queue = None):
+        '''
+        Find a path between a given start and goal point, if possible
+        '''
         self.stack.push(start)
         self.predecessors[start] = None
 
         while not self.stack.is_empty():
             position = self.stack.pop()
+
+            # Add position to queue for multithreading
             if progress_queue:
                 progress_queue.put(position)
 
@@ -72,12 +88,18 @@ class DepthFirstSearcher(Searcher):
 
 
 class BredthFirstSearcher(Searcher):
+    '''
+    Searching algorithm that uses a Queue (FIFO)
+    '''
     
     def __init__(self):
         self.queue = Queue()
         self.predecessors = {}
     
     def solve(self, maze, start, goal, progress_queue = None, path_queue = None):
+        '''
+        Find a path between a given start and goal point, if possible
+        '''
         self.queue.enqueue(start)
         self.predecessors[start] = None
 
@@ -105,6 +127,9 @@ class BredthFirstSearcher(Searcher):
 
 
 class AStarSearcher(Searcher):
+    '''
+    Searching algorithm that uses a PriorityQueue with priority based on heuristics
+    '''
     
     def __init__(self):
         self.queue = PriorityQueue()
@@ -112,6 +137,9 @@ class AStarSearcher(Searcher):
         self.g_values = {}
     
     def solve(self, maze, start, goal, progress_queue, path_queue):
+        '''
+        Find a path between a given start and goal point, if possible
+        '''
         self.queue.enqueue(start, self._get_distance(start, goal))
         self.predecessors[start] = None
         self.g_values[start] = 0
@@ -151,11 +179,3 @@ class AStarSearcher(Searcher):
         y_dist = abs(end[1] - start[1])
         
         return x_dist + y_dist 
-
-
-if __name__ == '__main__':
-    from maze import Maze
-    m = Maze('src/mazes/simple.txt')
-    s = DepthFirstSearcher()
-    test = s.solve(m.grid, (14,1), (2, 10))
-    stop = 'vreak'
