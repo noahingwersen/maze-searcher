@@ -24,6 +24,16 @@ class Searcher:
         
         return True
 
+    def _get_path(self, end) -> list[tuple]:
+        path = []
+        position = end
+        while position is not None:
+            path.append(position)
+            position = self.predecessors[position]
+        
+        path.reverse()
+
+        return path
 
 class DepthFirstSearcher(Searcher):
     def __init__(self):
@@ -60,20 +70,39 @@ class DepthFirstSearcher(Searcher):
 
         return None
 
-    def _get_path(self, end) -> list[tuple]:
-        path = []
-        position = end
-        while position is not None:
-            path.append(position)
-            position = self.predecessors[position]
-        
-        path.reverse()
-
-        return path
-
 
 class BredthFirstSearcher(Searcher):
-    pass
+    
+    def __init__(self):
+        self.queue = Queue()
+        self.predecessors = {}
+    
+    def solve(self, maze, start, goal, progress_queue = None, path_queue = None):
+        self.queue.enqueue(start)
+        self.predecessors[start] = None
+
+        while not self.queue.is_empty():
+            position = self.queue.dequeue()
+            if progress_queue:
+                progress_queue.put(position)
+
+            if position == goal:
+                path =  self._get_path(goal)
+                if path_queue:
+                    for position in path:
+                        path_queue.put(position)
+                
+                return path
+            
+            for direction in [Offset.UP, Offset.RIGHT, Offset.DOWN, Offset.LEFT]:
+                neighbor = (position[0] + direction[0], position[1] + direction[1])
+
+                if self._is_valid(maze, neighbor) and neighbor not in self.predecessors:
+                    self.queue.enqueue(neighbor)
+                    self.predecessors[neighbor] = position
+
+        return None
+
 
 class AStarSearcher(Searcher):
     pass

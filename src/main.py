@@ -259,8 +259,10 @@ class Game:
         return (x, y)
 
 if __name__ == '__main__':
-    s = searchers.DepthFirstSearcher()
+    # s = searchers.DepthFirstSearcher()
+    s = searchers.BredthFirstSearcher()
+    # s = searchers.AStarSearcher()
+    
     m = Maze('src/mazes/simple.txt')
-
     game = Game(m, s)
     game.show()
