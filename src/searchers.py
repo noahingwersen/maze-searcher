@@ -1,5 +1,6 @@
 class Searcher:
-    pass
+    def solve(self, maze):
+        pass
 
 class DepthFirstSearcher(Searcher):
     pass
@@ -9,4 +10,3 @@ class BredthFirstSearcher(Searcher):
 
 class AStarSearcher(Searcher):
     pass
-
