@@ -2,6 +2,7 @@
 This file contains custom classes for the structures commonly used in the search algorithms
 '''
 from collections import deque
+import heapq
 
 class Stack:
     '''
@@ -50,4 +51,24 @@ class Queue:
         return str(self._items)
 
 class PriorityQueue:
-    pass
+    '''
+    A priority queue ensures that the item with the highest priority is at the top of the queue
+    '''
+
+    def __init__(self):
+        self._items = []
+    
+    def enqueue(self, item, priority):
+        heapq.heappush(self._items, (priority, item))
+    
+    def dequeue(self):
+        return heapq.heappop(self._items)
+    
+    def is_empty(self):
+        return not self._items
+    
+    def size(self):
+        return len(self._items)
+    
+    def __str__(self):
+        return str(self._items)
