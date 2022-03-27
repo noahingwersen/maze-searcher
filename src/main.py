@@ -25,19 +25,21 @@ class Button:
     def draw(self):
         pygame.draw.rect(self.window, self.button_color, self.rect)
         self.window.blit(self.text, self.text_position)
+    
+    def set_text(self, text: str, color: pygame.Color):
+        self.text = self.FONT.render(text, True, color)
 
 
 class Game:
+    SELECTED_SEARCHER_COLOR = pygame.Color(117, 32, 21)
     START_COLOR = pygame.Color(255, 0, 0)
     GOAL_COLOR = pygame.Color(255, 255, 0)
     PROGRESS_COLOR = pygame.Color(0, 125, 255)
     PATH_COLOR = pygame.Color(0, 255, 0)
 
-    def __init__(self, maze: Maze, searcher: searchers.Searcher):
+    def __init__(self, maze: Maze):
         self.maze = maze
-        self.searcher = searcher
         self.window = None
-        self.solving = False
     
     def show(self):
         self._initialize()
@@ -55,6 +57,7 @@ class Game:
     
     def solve(self):
         if not self.solving:
+            self._set_searcher()
             self.show_path = False
 
             if self.start_position and self.goal_position:
@@ -73,6 +76,7 @@ class Game:
                 self.thread.start()
 
     def _initialize(self):
+        self.solving = False
         maze_width = self.maze.width * 20
         maze_height = self.maze.height * 20
         width = maze_width + 100 if maze_width > 500 else 600
@@ -95,9 +99,15 @@ class Game:
         pygame.display.set_caption('Maze')
         self.clock = pygame.time.Clock()
 
+        self.searcher = searchers.DepthFirstSearcher()
+        self.searcher_type = 'DFS'
+
         self.buttons = [
-            Button(self.window, (int(width/3), 50), (70, 30), 'SOLVE', pygame.Color(20, 92, 32), WHITE),
-            Button(self.window, (int(width/3) + 100, 50), (70, 30), 'RESET', pygame.Color(235, 64, 52), WHITE)
+            Button(self.window, (50, 50), (70, 30), 'SOLVE', pygame.Color(20, 92, 32), WHITE),
+            Button(self.window, (150, 50), (70, 30), 'RESET', pygame.Color(235, 64, 52), WHITE),
+            Button(self.window, (width - 120, 50), (70, 30), 'A*'),
+            Button(self.window, (width - 220, 50), (70, 30), 'BFS'),
+            Button(self.window, (width - 320, 50), (70, 30), 'DFS', self.SELECTED_SEARCHER_COLOR, WHITE)
         ]
 
         font = pygame.font.SysFont('ComicSans', 14)
@@ -225,6 +235,14 @@ class Game:
         x, y = self._grid_to_pixel(position)
         rect = pygame.Rect(x, y, 20, 20)
         pygame.draw.rect(self.window, color, rect)
+    
+    def _set_searcher(self):
+        if self.searcher_type == 'DFS':
+            self.searcher = searchers.DepthFirstSearcher()
+        elif self.searcher_type == 'BFS':
+            self.searcher = searchers.BredthFirstSearcher()
+        elif self.searcher_type == 'A*':
+            self.searcher = searchers.AStarSearcher()
 
     def _draw_buttons(self):
         for button in self.buttons:
@@ -239,6 +257,27 @@ class Game:
         
         if button.name == 'SOLVE':
             self.solve()
+        
+        if button.name == 'DFS':
+            self._select_searcher('DFS')
+        
+        if button.name == 'BFS':
+            self._select_searcher('BFS')
+        
+        if button.name == 'A*':
+            self._select_searcher('A*')
+
+    def _select_searcher(self, type: str):
+        searcher_buttons = [button for button in self.buttons if button.name in ['DFS', 'BFS', 'A*']]
+        for button in searcher_buttons:
+            if button.name == type:
+                button.set_text(button.name, WHITE)
+                button.button_color = self.SELECTED_SEARCHER_COLOR
+            else:
+                button.set_text(button.name, BLACK)
+                button.button_color = WHITE
+        
+        self.searcher_type = type
 
     def _pixel_to_grid(self, pixels):
         '''
@@ -258,11 +297,7 @@ class Game:
 
         return (x, y)
 
-if __name__ == '__main__':
-    # s = searchers.DepthFirstSearcher()
-    # s = searchers.BredthFirstSearcher()
-    s = searchers.AStarSearcher()
-    
+if __name__ == '__main__':  
     m = Maze('src/mazes/pacman.txt')
-    game = Game(m, s)
+    game = Game(m)
     game.show()

@@ -14,9 +14,9 @@ class Searcher:
 
     def _is_valid(self, maze, position) -> bool:
         x, y = position
-        if x < 0 or x > len(maze):
+        if x < 0 or x > len(maze) - 1:
             return False
-        if y < 0 or y > len(maze[0]):
+        if y < 0 or y > len(maze[0]) - 1:
             return False
         
         if maze[x][y] == '#':
