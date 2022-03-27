@@ -260,9 +260,9 @@ class Game:
 
 if __name__ == '__main__':
     # s = searchers.DepthFirstSearcher()
-    s = searchers.BredthFirstSearcher()
-    # s = searchers.AStarSearcher()
+    # s = searchers.BredthFirstSearcher()
+    s = searchers.AStarSearcher()
     
-    m = Maze('src/mazes/simple.txt')
+    m = Maze('src/mazes/pacman.txt')
     game = Game(m, s)
     game.show()

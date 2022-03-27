@@ -62,7 +62,8 @@ class PriorityQueue:
         heapq.heappush(self._items, (priority, item))
     
     def dequeue(self):
-        return heapq.heappop(self._items)
+        # Return just the item, not the priority
+        return heapq.heappop(self._items)[1]
     
     def is_empty(self):
         return not self._items
