@@ -9,7 +9,7 @@ WHITE = pygame.Color(255, 255, 255)
 BLACK = pygame.Color(0, 0, 0)
 
 class Button:
-    FONT = pygame.font.SysFont('ComicSans', 12)
+    FONT = pygame.font.SysFont(pygame.font.get_default_font(), 20)
 
     def __init__(self, window: pygame.Surface, position: tuple,
             size: tuple, text: str, button_color: pygame.Color = WHITE, text_color: pygame.Color = BLACK):
@@ -49,14 +49,16 @@ class Game:
         self._initialize()
         self._display()
     
-    def reset(self):
+    def reset(self, clear_positions: bool = True):
         '''
         Clears the variables used for solving
         '''
         self.progress = []
         self.path = []
-        self.start_position = None
-        self.goal_position = None
+
+        if clear_positions:
+            self.start_position = None
+            self.goal_position = None
 
         self.progress_queue = None
         self.path_queue = None
@@ -128,7 +130,7 @@ class Game:
             Button(self.window, (width - 320, 50), (70, 30), 'DFS', self.SELECTED_SEARCHER_COLOR, WHITE)
         ]
 
-        font = pygame.font.SysFont('ComicSans', 14)
+        font = pygame.font.SysFont(pygame.font.get_default_font(), 20)
         self.instructions = font.render(
             '*Click to mark the starting position, then click again to mark the goal location.',
             True,
@@ -275,7 +277,7 @@ class Game:
 
     def _select_searcher(self, type: str):
         '''
-        Set the searcher type and mark the appropriate button
+        Set the searcher type and mark the appropriate button, then remove any previous solution
         '''
         searcher_buttons = [button for button in self.buttons if button.name in ['DFS', 'BFS', 'A*']]
         for button in searcher_buttons:
@@ -287,6 +289,7 @@ class Game:
                 button.set_text(button.name, BLACK)
                 button.button_color = WHITE
         
+        self.reset(clear_positions=False)
         self.searcher_type = type
 
     def _pixel_to_grid(self, pixels):
@@ -315,7 +318,7 @@ class Game:
         Determines event handler for the button that was clicked
         '''
         if button.name == 'RESET':
-            self.reset()
+            self.reset(clear_positions=True)
         
         if button.name == 'SOLVE':
             self.solve()
